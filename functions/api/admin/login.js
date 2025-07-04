@@ -5,7 +5,7 @@ export async function onRequestPost(context) {
   if (username === USER && password === PASSWORD) {
     // 简单 session: 设置 cookie
     const headers = {
-      'Set-Cookie': `admin_session=1; HttpOnly; Path=/; Max-Age=86400`,
+      'Set-Cookie': `admin_session=1; Path=/; Max-Age=86400; SameSite=Lax; Secure`,
       'Content-Type': 'application/json'
     };
     return new Response(JSON.stringify({ success: true }), { headers });

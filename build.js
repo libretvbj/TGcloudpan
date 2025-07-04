@@ -428,7 +428,8 @@ const adminHtml = `<!DOCTYPE html>
           res = await fetch('/api/admin/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
+            body: JSON.stringify({ username, password }),
+            credentials: 'same-origin'
           });
         } catch (e) {
           document.getElementById('msg').innerText = '网络错误';
