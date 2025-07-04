@@ -425,7 +425,7 @@ const adminHtml = `<!DOCTYPE html>
         this.disabled = true;
         let res;
         try {
-          res = await fetch('/admin/login', {
+          res = await fetch('/api/admin/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
