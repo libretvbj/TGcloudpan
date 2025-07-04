@@ -110,15 +110,24 @@ async function uploadToTelegram(file, fileName, env) {
 
     // 构建multipart/form-data
     const formData = new FormData();
-    
-    // 添加文件
     const blob = new Blob([buffer], { type: file.type });
-    formData.append('photo', blob, fileName);
     formData.append('chat_id', TG_PD);
     formData.append('caption', `📁 File: ${file.name}\n📏 Size: ${formatFileSize(file.size)}\n📅 Upload Time: ${new Date().toLocaleString()}`);
 
+    // 判断文件类型，选择接口
+    let apiUrl = '';
+    let fileField = '';
+    if (file.type.startsWith('image/')) {
+      apiUrl = `https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`;
+      fileField = 'photo';
+    } else {
+      apiUrl = `https://api.telegram.org/bot${TG_TOKEN}/sendDocument`;
+      fileField = 'document';
+    }
+    formData.append(fileField, blob, fileName);
+
     // 发送到Telegram API
-    const response = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/sendPhoto`, {
+    const response = await fetch(apiUrl, {
       method: 'POST',
       body: formData
     });
@@ -131,9 +140,15 @@ async function uploadToTelegram(file, fileName, env) {
     }
 
     // 获取文件信息
-    const photo = result.result.photo[result.result.photo.length - 1]; // 获取最大尺寸的图片
-    const fileId = photo.file_id;
-    const fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${photo.file_id}`;
+    let fileId, fileUrl;
+    if (file.type.startsWith('image/')) {
+      const photo = result.result.photo[result.result.photo.length - 1];
+      fileId = photo.file_id;
+      fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${photo.file_id}`;
+    } else {
+      fileId = result.result.document.file_id;
+      fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${fileId}`;
+    }
 
     return {
       success: true,
