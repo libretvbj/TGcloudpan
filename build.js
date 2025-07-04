@@ -465,13 +465,32 @@ window.onload = function() {
 };`;
 
 // 管理后台CSS
-const adminCss = `.admin-container{max-width:500px;margin:60px auto;padding:32px 24px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.08);text-align:center;}
-.admin-container h2{margin-bottom:24px;}
+const adminCss = `body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.admin-container {
+    max-width: 900px;
+    margin: 60px auto;
+    padding: 32px 24px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
 #loginForm{display:flex;flex-direction:column;gap:16px;margin-bottom:16px;}
 #loginForm input{padding:12px;border-radius:8px;border:1px solid #ddd;font-size:1em;}
 #loginForm button{padding:12px;border-radius:8px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;font-size:1em;cursor:pointer;}
 #adminContent{margin-top:24px;}
-#fileTable{width:100%;border-collapse:collapse;margin-bottom:16px;}
+#fileTable{width:100%;max-width:850px;margin:0 auto 16px auto;border-collapse:collapse;}
 #fileTable th,#fileTable td{border:1px solid #eee;padding:8px;}
 #fileTable th{background:#f8f9fa;}
 #fileTable td a{color:#0088cc;text-decoration:none;}
