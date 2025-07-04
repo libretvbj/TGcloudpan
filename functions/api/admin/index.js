@@ -15,6 +15,7 @@ function getLoginHTML() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="https://bigjackson.top/images/avatar.jpg" />
     <title>后台登录</title>
     <link rel="stylesheet" href="/style.css">
     <style>.container{max-width:400px;margin:80px auto;padding:32px 24px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.08);text-align:center}input{width:100%;margin:12px 0;padding:12px;border-radius:8px;border:1px solid #ddd;font-size:1em}button{width:100%;padding:12px;border-radius:8px;background:#667eea;color:#fff;font-size:1.1em;border:none;cursor:pointer;margin-top:12px}button:disabled{opacity:.6;cursor:not-allowed}</style>
@@ -75,12 +76,7 @@ function getAdminHTML() {
         tbody.innerHTML = '';
         for (const f of data.files) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td>
-            <span title="${f.name}">${f.name}</span></td>
-            <td>${formatSize(f.size)}</td>
-            <td>${f.type}</td>
-            <td>${formatTime(f.uploadTime)}</td>
-            <td><a href="${f.url}" target="_blank">下载</a></td>`;
+          tr.innerHTML = `<td><span title="${f.name}">${f.name}</span></td><td>${formatSize(f.size)}</td><td>${f.type}</td><td>${formatTime(f.uploadTime)}</td><td><a href="${f.url}" target="_blank">下载</a></td>`;
           tbody.appendChild(tr);
         }
       }
@@ -101,4 +97,4 @@ function getAdminHTML() {
     </script>
   </body>
   </html>`;
-} 
+}
