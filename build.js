@@ -423,7 +423,7 @@ async function fetchFiles(user, pass) {
     } else {
       preview = '<a href="' + f.url + '" target="_blank">预览/下载</a>';
     }
-    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank">下载</a></td>';
+    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank" title="如下载失败请右键新标签页打开">下载</a></td>';
     fileTable.appendChild(tr);
   }
   setStatus('加载完成', 'success');

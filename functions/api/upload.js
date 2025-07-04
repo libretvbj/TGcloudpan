@@ -139,21 +139,31 @@ async function uploadToTelegram(file, fileName, env) {
       return { success: false, error: 'Failed to send to Telegram' };
     }
 
-    // 获取文件信息
-    let fileId, fileUrl;
+    // 获取文件ID
+    let fileId, messageId;
     if (file.type.startsWith('image/')) {
       const photo = result.result.photo[result.result.photo.length - 1];
       fileId = photo.file_id;
-      fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${photo.file_id}`;
+      messageId = result.result.message_id;
     } else {
       fileId = result.result.document.file_id;
-      fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${fileId}`;
+      messageId = result.result.message_id;
+    }
+
+    // 通过 getFile API 获取真实 file_path
+    const getFileRes = await fetch(`https://api.telegram.org/bot${TG_TOKEN}/getFile?file_id=${fileId}`);
+    const getFileData = await getFileRes.json();
+    let fileUrl = '';
+    if (getFileData.ok && getFileData.result && getFileData.result.file_path) {
+      fileUrl = `https://api.telegram.org/file/bot${TG_TOKEN}/${getFileData.result.file_path}`;
+    } else {
+      fileUrl = '';
     }
 
     return {
       success: true,
       fileId: fileId,
-      messageId: result.result.message_id,
+      messageId: messageId,
       url: fileUrl
     };
 
