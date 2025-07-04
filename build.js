@@ -356,6 +356,7 @@ const adminHtml = `<!DOCTYPE html>
 </head>
 <body>
   <div class="admin-container">
+    <div style="color:#c00;font-size:14px;margin-bottom:10px;">提示：Telegram 直链受限，部分文件可能无法直接下载或预览，建议用 Telegram 客户端获取原文件。</div>
     <h2>管理后台</h2>
     <form id="loginForm">
       <input type="text" id="username" placeholder="账号" required />
@@ -421,11 +422,11 @@ async function fetchFiles(user, pass) {
     if (f.type && f.type.startsWith('image/')) {
       preview = '<img src="' + f.url + '" alt="图片预览" style="max-width:80px;max-height:60px;" onerror="this.onerror=null;this.src=\'https://bigjackson.top/images/file-error.png\';this.alt=\'图片不可用\'">';
     } else if (f.type && f.type.startsWith('video/')) {
-      preview = '<video src="' + f.url + '" controls style="max-width:80px;max-height:60px;" onerror="this.poster=\'https://bigjackson.top/images/file-error.png\'"></video>';
+      preview = '<video src="' + f.url + '" controls style="max-width:80px;max-height:60px;" onerror="this.poster=\'https://bigjackson.top/images/file-error.png\';alert(\'视频无法预览，请用 Telegram 客户端获取\');"></video>';
     } else {
       preview = '<a href="' + f.url + '" target="_blank">预览/下载</a>';
     }
-    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank" title="如下载失败请用 Telegram 客户端或机器人获取">下载</a></td>';
+    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank" title="如下载失败请用 Telegram 客户端或机器人获取" onclick="setTimeout(function(){alert(\'如下载失败请用 Telegram 客户端或机器人获取原文件\');}, 1000);">下载</a></td>';
     fileTable.appendChild(tr);
   }
   setStatus('加载完成', 'success');
