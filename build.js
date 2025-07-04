@@ -423,10 +423,28 @@ const adminHtml = `<!DOCTYPE html>
         const username = document.getElementById('username').value;
         const password = document.getElementById('password').value;
         this.disabled = true;
-        const res = await fetch('/admin/login', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username,password})});
-        if (res.ok) { location.reload(); } else {
-          const data = await res.json();
-          document.getElementById('msg').innerText = data.error || '登录失败';
+        let res;
+        try {
+          res = await fetch('/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+        } catch (e) {
+          document.getElementById('msg').innerText = '网络错误';
+          this.disabled = false;
+          return;
+        }
+        if (res.ok) {
+          location.reload();
+        } else {
+          let data = {};
+          try {
+            data = await res.json();
+          } catch (e) {
+            // 非 JSON 响应
+          }
+          document.getElementById('msg').innerText = data.error || '登录失败 (' + res.status + ')';
           this.disabled = false;
         }
       }
