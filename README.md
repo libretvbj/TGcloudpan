@@ -119,6 +119,19 @@ wrangler pages deploy dist --project-name=telegram-cloud-drive
    - `TG_PD`: 你的频道ID
 6. 部署项目
 
+## ⚠️ Cloudflare Pages 部署注意事项
+
+1. **构建输出目录必须为 dist**
+   - 在 Cloudflare Pages 项目设置中，"构建输出目录"应填写为 `dist`，否则会导致 404 错误。
+   - 你可以在 Cloudflare Dashboard 的 Pages 项目设置里找到这个选项。
+2. **主页面文件名必须为 index.html**
+   - `dist/` 目录下必须有 `index.html` 文件，否则访问根路径 `/` 时会 404。
+   - 运行 `npm run build` 或 `node build.js` 会自动生成 `dist/index.html`。
+3. **构建和部署流程**
+   - 每次更改代码后，务必先运行 `npm run build`（或直接运行 `node build.js`，如果没有配置 npm script）。
+   - 构建完成后，`dist/` 目录会包含所有需要部署的静态文件。
+   - 用 wrangler 或 Cloudflare Dashboard 部署时，确保选择 `dist` 作为部署目录。
+
 ## 使用方法
 
 1. 访问你的Pages URL（例如：`https://telegram-cloud-drive.pages.dev`）
