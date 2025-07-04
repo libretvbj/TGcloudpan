@@ -11,10 +11,7 @@ export async function onRequestGet(context) {
   }
   const expected = 'Basic ' + btoa(`${USER}:${PASSWORD}`);
   if (auth !== expected) {
-    return new Response('Unauthorized', {
-      status: 401,
-      headers: { 'WWW-Authenticate': 'Basic realm="Admin Area"' }
-    });
+    return new Response('Unauthorized', { status: 401 });
   }
 
   // 读取所有KV内容
