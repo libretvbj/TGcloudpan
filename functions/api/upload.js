@@ -25,18 +25,6 @@ export async function onRequestPost(context) {
       });
     }
 
-    // 检查文件类型（只允许图片）
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-    if (!allowedTypes.includes(file.type)) {
-      return new Response(JSON.stringify({ error: 'Only image files are allowed' }), {
-        status: 400,
-        headers: {
-          'Content-Type': 'application/json',
-          ...corsHeaders
-        }
-      });
-    }
-
     // 生成唯一文件名
     const timestamp = Date.now();
     const fileExtension = file.name.split('.').pop();
