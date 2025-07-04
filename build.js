@@ -244,6 +244,7 @@ const uploadBtn = document.getElementById('uploadBtn');
 const progress = document.getElementById('progress');
 const progressBar = document.getElementById('progressBar');
 const status = document.getElementById('status');
+let progressInfo = null;
 
 // 拖拽上传
 uploadArea.addEventListener('dragover', (e) => {
@@ -281,6 +282,23 @@ function handleFiles(files) {
     });
 }
 
+function showProgressInfo(loaded, total, speed) {
+  if (!progressInfo) {
+    progressInfo = document.createElement('div');
+    progressInfo.style.marginTop = '8px';
+    progressInfo.style.fontSize = '0.95em';
+    progress.parentNode.insertBefore(progressInfo, progress.nextSibling);
+  }
+  let loadedMB = (loaded / 1024 / 1024).toFixed(2);
+  let totalMB = (total / 1024 / 1024).toFixed(2);
+  let speedMB = (speed / 1024 / 1024).toFixed(2);
+  progressInfo.textContent = '已上传: ' + loadedMB + 'MB / ' + totalMB + 'MB  |  速度: ' + speedMB + ' MB/s';
+}
+
+function hideProgressInfo() {
+  if (progressInfo) progressInfo.textContent = '';
+}
+
 async function uploadFile(file) {
     const formData = new FormData();
     formData.append('file', file);
@@ -290,16 +308,29 @@ async function uploadFile(file) {
     progressBar.style.width = '0%';
     uploadBtn.disabled = true;
     showStatus('正在上传...', 'success');
+    hideProgressInfo();
 
     try {
         // 使用 XMLHttpRequest 以支持进度条
         await new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', '/api/upload');
+            let lastLoaded = 0;
+            let lastTime = Date.now();
             xhr.upload.onprogress = function(e) {
                 if (e.lengthComputable) {
                     const percent = (e.loaded / e.total) * 100;
                     progressBar.style.width = percent + '%';
+                    // 计算速度
+                    const now = Date.now();
+                    const timeDiff = (now - lastTime) / 1000;
+                    let speed = 0;
+                    if (timeDiff > 0) {
+                      speed = (e.loaded - lastLoaded) / timeDiff;
+                    }
+                    showProgressInfo(e.loaded, e.total, speed);
+                    lastLoaded = e.loaded;
+                    lastTime = now;
                 }
             };
             xhr.onload = function() {
@@ -308,36 +339,39 @@ async function uploadFile(file) {
                     if (result.success) {
                         progressBar.style.width = '100%';
                         showStatus('上传成功！文件已发送到Telegram频道', 'success');
+                        hideProgressInfo();
                         // 显示文件信息
-                        const fileInfo = \`
-                            <div class="file-info">
-                                <h4>📁 文件信息</h4>
-                                <p><strong>文件名:</strong> \${result.file.name}</p>
-                                <p><strong>大小:</strong> \${formatFileSize(result.file.size)}</p>
-                                <p><strong>类型:</strong> \${result.file.type}</p>
-                                <p><strong>上传时间:</strong> \${new Date(result.file.uploadTime).toLocaleString()}</p>
-                                <p><a href="#" onclick="showPreview('\${result.file.url}','\${result.file.type}');return false;" class="telegram-link">查看文件</a></p>
-                            </div>
-                        \`;
+                        const fileInfo = '<div class="file-info">' +
+                            '<h4>📁 文件信息</h4>' +
+                            '<p><strong>文件名:</strong> ' + result.file.name + '</p>' +
+                            '<p><strong>大小:</strong> ' + formatFileSize(result.file.size) + '</p>' +
+                            '<p><strong>类型:</strong> ' + result.file.type + '</p>' +
+                            '<p><strong>上传时间:</strong> ' + new Date(result.file.uploadTime).toLocaleString() + '</p>' +
+                            '<p><a href="#" onclick="showPreview(\'' + result.file.url + '\',\'' + result.file.type + '\');return false;" class="telegram-link">查看文件</a></p>' +
+                        '</div>';
                         status.innerHTML += fileInfo;
                         resolve();
                     } else {
                         showStatus('上传失败: ' + result.error, 'error');
+                        hideProgressInfo();
                         reject();
                     }
                 } else {
                     showStatus('上传失败: 网络错误', 'error');
+                    hideProgressInfo();
                     reject();
                 }
             };
             xhr.onerror = function() {
                 showStatus('上传失败: 网络错误', 'error');
+                hideProgressInfo();
                 reject();
             };
             xhr.onloadend = function() {
                 uploadBtn.disabled = false;
                 setTimeout(() => {
                     progress.style.display = 'none';
+                    hideProgressInfo();
                 }, 2000);
             };
             xhr.send(formData);
@@ -346,6 +380,7 @@ async function uploadFile(file) {
         console.error('Upload error:', error);
         showStatus('上传失败: 网络错误', 'error');
         uploadBtn.disabled = false;
+        hideProgressInfo();
         setTimeout(() => {
             progress.style.display = 'none';
         }, 2000);
