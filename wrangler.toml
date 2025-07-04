@@ -1,0 +1,23 @@
+name = "telegram-cloud-drive"
+compatibility_date = "2024-01-01"
+
+[build]
+command = "npm run build"
+output_directory = "dist"
+
+[[kv_namespaces]]
+binding = "UPLOADS_KV"
+id = "__UPLOADS_KV_ID__"
+preview_id = "__UPLOADS_KV_ID__"
+
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# 环境变量将在Cloudflare Dashboard中设置
+# TG_TOKEN - Telegram Bot Token
+# TG_PD - Telegram Channel ID
+# USER - 管理员账号
+# PASSWORD - 管理员密码 
