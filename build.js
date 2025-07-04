@@ -363,7 +363,7 @@ const adminHtml = `<!DOCTYPE html>
     <div id="adminContent" style="display:none;">
       <h3>上传内容列表</h3>
       <table id="fileTable">
-        <thead><tr><th>文件名</th><th>大小</th><th>类型</th><th>时间</th><th>操作</th></tr></thead>
+        <thead><tr><th>文件名</th><th>大小</th><th>类型</th><th>时间</th><th>预览</th><th>操作</th></tr></thead>
         <tbody></tbody>
       </table>
       <button id="logoutBtn">退出登录</button>
@@ -375,7 +375,94 @@ const adminHtml = `<!DOCTYPE html>
 </html>`;
 
 // 管理后台JS
-const adminJs = 'const loginForm = document.getElementById(\'loginForm\');\nconst adminContent = document.getElementById(\'adminContent\');\nconst fileTable = document.getElementById(\'fileTable\').querySelector(\'tbody\');\nconst statusDiv = document.getElementById(\'adminStatus\');\nconst logoutBtn = document.getElementById(\'logoutBtn\');\n\nfunction setStatus(msg, type) {\n  statusDiv.textContent = msg;\n  statusDiv.className = type ? \'status \' + type : \'\';\n}\n\nfunction saveAuth(user, pass) {\n  sessionStorage.setItem(\'admin_user\', user);\n  sessionStorage.setItem(\'admin_pass\', pass);\n}\nfunction clearAuth() {\n  sessionStorage.removeItem(\'admin_user\');\n  sessionStorage.removeItem(\'admin_pass\');\n}\nfunction getAuth() {\n  const u = sessionStorage.getItem(\'admin_user\');\n  const p = sessionStorage.getItem(\'admin_pass\');\n  return u && p ? {u, p} : null;\n}\n\nasync function fetchFiles(user, pass) {\n  setStatus(\'正在加载...\', \'\');\n  const auth = \'Basic \' + btoa(`\${user}:\${pass}`);\n  const res = await fetch(\'/api/admin/list\', { headers: { authorization: auth } });\n  if (res.status === 401) {\n    setStatus(\'认证失败，请重新登录\', \'error\');\n    clearAuth();\n    adminContent.style.display = \'none\';\n    loginForm.style.display = \'\';\n    return;\n  }\n  const data = await res.json();\n  fileTable.innerHTML = \'\';\n  for (const f of data.files) {\n    const tr = document.createElement(\'tr\');\n    tr.innerHTML = `<td>\${f.name}</td><td>\${formatFileSize(f.size)}</td><td>\${f.type}</td><td>\${new Date(f.uploadTime).toLocaleString()}</td><td><a href=\"\${f.url}\" target=\"_blank\">下载</a></td>`;\n    fileTable.appendChild(tr);\n  }\n  setStatus(\'加载完成\', \'success\');\n}\n\nloginForm.onsubmit = async e => {\n  e.preventDefault();\n  const user = username.value.trim();\n  const pass = password.value;\n  saveAuth(user, pass);\n  await tryLogin();\n};\n\nlogoutBtn.onclick = () => {\n  clearAuth();\n  adminContent.style.display = \'none\';\n  loginForm.style.display = \'\';\n  setStatus(\'已退出登录\', \'\');\n};\n\nasync function tryLogin() {\n  const auth = getAuth();\n  if (!auth) return;\n  loginForm.style.display = \'none\';\n  adminContent.style.display = \'\';\n  await fetchFiles(auth.u, auth.p);\n}\n\nfunction formatFileSize(bytes) {\n  if (bytes === 0) return \'0 Bytes\';\n  const k = 1024;\n  const sizes = [\'Bytes\', \'KB\', \'MB\', \'GB\'];\n  const i = Math.floor(Math.log(bytes) / Math.log(k));\n  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + \' \' + sizes[i];\n}\n\nwindow.onload = () => {\n  if (getAuth()) tryLogin();\n};\n';
+const adminJs = `const loginForm = document.getElementById('loginForm');
+const adminContent = document.getElementById('adminContent');
+const fileTable = document.getElementById('fileTable').querySelector('tbody');
+const statusDiv = document.getElementById('adminStatus');
+const logoutBtn = document.getElementById('logoutBtn');
+
+function setStatus(msg, type) {
+  statusDiv.textContent = msg;
+  statusDiv.className = type ? 'status ' + type : '';
+}
+
+function saveAuth(user, pass) {
+  sessionStorage.setItem('admin_user', user);
+  sessionStorage.setItem('admin_pass', pass);
+}
+function clearAuth() {
+  sessionStorage.removeItem('admin_user');
+  sessionStorage.removeItem('admin_pass');
+}
+function getAuth() {
+  const u = sessionStorage.getItem('admin_user');
+  const p = sessionStorage.getItem('admin_pass');
+  return u && p ? {u, p} : null;
+}
+
+async function fetchFiles(user, pass) {
+  setStatus('正在加载...', '');
+  const auth = 'Basic ' + btoa(user + ':' + pass);
+  const res = await fetch('/api/admin/list', { headers: { authorization: auth } });
+  if (res.status === 401) {
+    setStatus('认证失败，请重新登录', 'error');
+    clearAuth();
+    adminContent.style.display = 'none';
+    loginForm.style.display = '';
+    return;
+  }
+  const data = await res.json();
+  fileTable.innerHTML = '';
+  for (const f of data.files) {
+    const tr = document.createElement('tr');
+    let preview = '';
+    if (f.type && f.type.startsWith('image/')) {
+      preview = '<img src="' + f.url + '" alt="图片预览" style="max-width:80px;max-height:60px;">';
+    } else if (f.type && f.type.startsWith('video/')) {
+      preview = '<video src="' + f.url + '" controls style="max-width:80px;max-height:60px;"></video>';
+    } else {
+      preview = '<a href="' + f.url + '" target="_blank">预览/下载</a>';
+    }
+    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank">下载</a></td>';
+    fileTable.appendChild(tr);
+  }
+  setStatus('加载完成', 'success');
+}
+
+loginForm.onsubmit = async function(e) {
+  e.preventDefault();
+  var user = username.value.trim();
+  var pass = password.value;
+  saveAuth(user, pass);
+  await tryLogin();
+};
+
+logoutBtn.onclick = function() {
+  clearAuth();
+  adminContent.style.display = 'none';
+  loginForm.style.display = '';
+  setStatus('已退出登录', '');
+};
+
+async function tryLogin() {
+  var auth = getAuth();
+  if (!auth) return;
+  loginForm.style.display = 'none';
+  adminContent.style.display = '';
+  await fetchFiles(auth.u, auth.p);
+}
+
+function formatFileSize(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  var k = 1024;
+  var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  var i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+window.onload = function() {
+  if (getAuth()) tryLogin();
+};`;
 
 // 管理后台CSS
 const adminCss = `.admin-container{max-width:500px;margin:60px auto;padding:32px 24px;background:#fff;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.08);text-align:center;}
