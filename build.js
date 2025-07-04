@@ -411,13 +411,13 @@ const adminHtml = `<!DOCTYPE html>
       return document.cookie.includes('admin_session=1');
     }
     function renderLogin() {
-      document.getElementById('main').innerHTML = \`
-        <div class="login-container">\n\`+
-        '  <h2>后台登录</h2>\n\`+
-        '  <input id="username" placeholder="账号" autocomplete="username" />\n\`+
-        '  <input id="password" type="password" placeholder="密码" autocomplete="current-password" />\n\`+
-        '  <button id="loginBtn">登录</button>\n\`+
-        '  <div id="msg" style="color:#e53e3e;margin-top:10px;"></div>\n\`+
+      document.getElementById('main').innerHTML =
+        '<div class="login-container">' +
+        '<h2>后台登录</h2>' +
+        '<input id="username" placeholder="账号" autocomplete="username" />' +
+        '<input id="password" type="password" placeholder="密码" autocomplete="current-password" />' +
+        '<button id="loginBtn">登录</button>' +
+        '<div id="msg" style="color:#e53e3e;margin-top:10px;"></div>' +
         '</div>';
       document.getElementById('loginBtn').onclick = async function() {
         const username = document.getElementById('username').value;
@@ -432,14 +432,14 @@ const adminHtml = `<!DOCTYPE html>
       }
     }
     function renderAdmin() {
-      document.getElementById('main').innerHTML = \`
-        <div class="container">\n\`+
-        '  <h2>管理后台 <span class="logout" onclick="logout()">退出</span></h2>\n\`+
-        '  <table id="fileTable">\n\`+
-        '    <thead><tr><th>文件名</th><th>大小</th><th>类型</th><th>上传时间</th><th>下载链接</th></tr></thead>\n\`+
-        '    <tbody></tbody>\n\`+
-        '  </table>\n\`+
-        '  <div id="msg" style="color:#e53e3e;margin-top:10px;"></div>\n\`+
+      document.getElementById('main').innerHTML =
+        '<div class="container">' +
+        '<h2>管理后台 <span class="logout" onclick="logout()">退出</span></h2>' +
+        '<table id="fileTable">' +
+        '<thead><tr><th>文件名</th><th>大小</th><th>类型</th><th>上传时间</th><th>下载链接</th></tr></thead>' +
+        '<tbody></tbody>' +
+        '</table>' +
+        '<div id="msg" style="color:#e53e3e;margin-top:10px;"></div>' +
         '</div>';
       loadFiles();
     }
