@@ -463,7 +463,7 @@ const adminHtml = `<!DOCTYPE html>
       loadFiles();
     }
     async function loadFiles() {
-      const res = await fetch('/admin/files');
+      const res = await fetch('/api/admin/files');
       if (!res.ok) {
         document.getElementById('msg').innerText = '无法获取文件列表';
         return;
@@ -472,12 +472,13 @@ const adminHtml = `<!DOCTYPE html>
       const tbody = document.querySelector('#fileTable tbody');
       tbody.innerHTML = '';
       for (const f of data.files) {
+        const downloadLink = f.url ? '<a href="' + f.url + '" target="_blank">下载</a>' : '无链接';
         const tr = document.createElement('tr');
         tr.innerHTML = '<td><span title="' + f.name + '">' + f.name + '</span></td>' +
                        '<td>' + formatSize(f.size) + '</td>' +
                        '<td>' + f.type + '</td>' +
                        '<td>' + formatTime(f.uploadTime) + '</td>' +
-                       '<td><a href="' + f.url + '" target="_blank">下载</a></td>';
+                       '<td>' + downloadLink + '</td>';
         tbody.appendChild(tr);
       }
     }
