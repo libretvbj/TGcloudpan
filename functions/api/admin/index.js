@@ -76,7 +76,11 @@ function getAdminHTML() {
         tbody.innerHTML = '';
         for (const f of data.files) {
           const tr = document.createElement('tr');
-          tr.innerHTML = `<td><span title="${f.name}">${f.name}</span></td><td>${formatSize(f.size)}</td><td>${f.type}</td><td>${formatTime(f.uploadTime)}</td><td><a href="${f.url}" target="_blank">下载</a></td>`;
+          tr.innerHTML = '<td><span title="' + f.name + '">' + f.name + '</span></td>' +
+                         '<td>' + formatSize(f.size) + '</td>' +
+                         '<td>' + f.type + '</td>' +
+                         '<td>' + formatTime(f.uploadTime) + '</td>' +
+                         '<td><a href="' + f.url + '" target="_blank">下载</a></td>';
           tbody.appendChild(tr);
         }
       }
