@@ -31,20 +31,6 @@ Telegram频道的ID，可以是：
 - 公开频道：`@channelname`
 - 私有频道：`-100xxxxxxxxxx`（数字ID）
 
-## 新增：后台管理页面
-
-- 访问 `/admin.html` 进入后台管理页面。
-- 登录需输入账号和密码（环境变量 USER 和 PASSWORD）。
-- 登录后可查看所有上传内容，并可点击下载（跳转到Telegram文件链接）。
-- 所有上传内容信息存储在Cloudflare KV（UPLOADS_KV）中。
-
-### 新增环境变量
-- `USER`：后台管理账号
-- `PASSWORD`：后台管理密码
-
-### KV配置
-- 本项目依赖Cloudflare Pages Functions的KV命名空间，需在Cloudflare后台创建并绑定到 `UPLOADS_KV`。
-
 ## 设置步骤
 
 ### 1. 创建Telegram机器人
