@@ -40,6 +40,12 @@ const html = `<!DOCTYPE html>
         <div class="status" id="status"></div>
     </div>
 
+    <!-- 预览模态框 -->
+    <div id="previewModal" class="modal" style="display:none;">
+      <div class="modal-content" id="previewContent"></div>
+      <span class="modal-close" id="previewClose">&times;</span>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>`;
@@ -213,7 +219,23 @@ body {
 
 .telegram-link:hover {
     text-decoration: underline;
-}`;
+}
+
+.modal {
+  position: fixed; left: 0; top: 0; width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 9999;
+}
+.modal-content {
+  background: #fff; padding: 20px; border-radius: 10px; max-width: 90vw; max-height: 80vh; overflow: auto;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-content img, .modal-content video {
+  max-width: 80vw; max-height: 70vh;
+}
+.modal-close {
+  position: fixed; right: 40px; top: 40px; font-size: 2em; color: #fff; cursor: pointer; z-index: 10000;
+}
+`;
 
 // JavaScript内容
 const js = `const uploadArea = document.getElementById('uploadArea');
@@ -294,7 +316,7 @@ async function uploadFile(file) {
                                 <p><strong>大小:</strong> \${formatFileSize(result.file.size)}</p>
                                 <p><strong>类型:</strong> \${result.file.type}</p>
                                 <p><strong>上传时间:</strong> \${new Date(result.file.uploadTime).toLocaleString()}</p>
-                                <p><strong>Telegram链接:</strong> <a href="\${result.file.url}" class="telegram-link" target="_blank">查看文件</a></p>
+                                <p><a href="#" onclick="showPreview('\${result.file.url}','\${result.file.type}');return false;" class="telegram-link">查看文件</a></p>
                             </div>
                         \`;
                         status.innerHTML += fileInfo;
@@ -342,7 +364,28 @@ function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-}`;
+}
+
+// 预览窗口逻辑
+const previewModal = document.getElementById('previewModal');
+const previewContent = document.getElementById('previewContent');
+const previewClose = document.getElementById('previewClose');
+function showPreview(url, type) {
+  if (type.startsWith('image/')) {
+    previewContent.innerHTML = '<img src="' + url + '" style="max-width:80vw;max-height:70vh;">';
+  } else if (type.startsWith('video/')) {
+    previewContent.innerHTML = '<video src="' + url + '" controls style="max-width:80vw;max-height:70vh;"></video>';
+  } else {
+    previewContent.innerHTML = '<a href="' + url + '" target="_blank">在新标签页打开/下载</a>';
+  }
+  previewModal.style.display = 'flex';
+}
+previewClose.onclick = function() {
+  previewModal.style.display = 'none';
+};
+previewModal.onclick = function(e) {
+  if (e.target === previewModal) previewModal.style.display = 'none';
+};`;
 
 // 写入文件
 fs.writeFileSync(path.join('dist', 'index.html'), html);

@@ -31,6 +31,10 @@ Telegram频道的ID，可以是：
 - 公开频道：`@channelname`
 - 私有频道：`-100xxxxxxxxxx`（数字ID）
 
+### 后台管理账号
+- USER：后台登录账号
+- PASSWORD：后台登录密码
+
 ## 设置步骤
 
 ### 1. 创建Telegram机器人
@@ -50,51 +54,7 @@ Telegram频道的ID，可以是：
 
 ### 3. 部署到Cloudflare Pages
 
-#### 方法一：使用部署脚本（推荐）
-
-```bash
-# Linux/Mac
-chmod +x deploy.sh
-./deploy.sh
-
-# Windows
-deploy.bat
-```
-
-#### 方法二：使用Wrangler CLI
-
-1. 安装Wrangler：
-```bash
-npm install -g wrangler
-```
-
-2. 登录Cloudflare：
-```bash
-wrangler login
-```
-
-3. 安装项目依赖：
-```bash
-npm install
-```
-
-4. 构建项目：
-```bash
-npm run build
-```
-
-5. 设置环境变量：
-```bash
-wrangler pages secret put TG_TOKEN --project-name=telegram-cloud-drive
-wrangler pages secret put TG_PD --project-name=telegram-cloud-drive
-```
-
-6. 部署项目：
-```bash
-wrangler pages deploy dist --project-name=telegram-cloud-drive
-```
-
-#### 方法三：使用Cloudflare Dashboard
+#### 使用Cloudflare Pages
 
 1. 登录[Cloudflare Dashboard](https://dash.cloudflare.com)
 2. 进入Pages
@@ -117,6 +77,19 @@ wrangler pages deploy dist --project-name=telegram-cloud-drive
    - 每次更改代码后，务必先运行 `npm run build`（或直接运行 `node build.js`，如果没有配置 npm script）。
    - 构建完成后，`dist/` 目录会包含所有需要部署的静态文件。
    - 用 wrangler 或 Cloudflare Dashboard 部署时，确保选择 `dist` 作为部署目录。
+
+# 环境设置
+TG机器人设置：
+TG_TOKEN=your_bot_token_here
+TG_PD=your_channel_id_here
+后台管理账号：
+USER=admin
+PASSWORD=your_password_here 
+
+# KV空间
+Cloudflare KV 命名空间，用于存储上传文件信息。
+- 需在 Cloudflare 后台创建 KV 命名空间，并在 Pages Functions 绑定为 `UPLOADS_KV`。
+- 绑定方法：Cloudflare Dashboard → Pages → 项目设置 → Functions → KV 命名空间绑定。
 
 ## 使用方法
 
