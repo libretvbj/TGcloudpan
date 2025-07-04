@@ -19,13 +19,13 @@ const html = `<!DOCTYPE html>
     <div class="container">
         <div class="logo">📁</div>
         <h1>Telegram云盘</h1>
-        <p class="subtitle">上传图片文件到Telegram频道</p>
+        <p class="subtitle">上传文件到Telegram频道</p>
         
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📤</div>
             <div class="upload-text">点击或拖拽文件到此处</div>
-            <div class="upload-hint">支持 JPG, PNG, GIF, WebP 格式</div>
-            <input type="file" id="fileInput" accept="image/*" multiple>
+            <div class="upload-hint">支持任意类型文件（图片、文档、视频等）</div>
+            <input type="file" id="fileInput" multiple>
         </div>
 
         <button class="btn" id="uploadBtn" onclick="document.getElementById('fileInput').click()">
@@ -254,11 +254,7 @@ fileInput.addEventListener('change', (e) => {
 
 function handleFiles(files) {
     Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-            uploadFile(file);
-        } else {
-            showStatus('只支持图片文件', 'error');
-        }
+        uploadFile(file);
     });
 }
 
@@ -273,37 +269,59 @@ async function uploadFile(file) {
     showStatus('正在上传...', 'success');
 
     try {
-        // 使用Cloudflare Pages Functions API
-        const response = await fetch('/api/upload', {
-            method: 'POST',
-            body: formData
+        // 使用 XMLHttpRequest 以支持进度条
+        await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/upload');
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    const percent = (e.loaded / e.total) * 100;
+                    progressBar.style.width = percent + '%';
+                }
+            };
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    const result = JSON.parse(xhr.responseText);
+                    if (result.success) {
+                        progressBar.style.width = '100%';
+                        showStatus('上传成功！文件已发送到Telegram频道', 'success');
+                        // 显示文件信息
+                        const fileInfo = \`
+                            <div class="file-info">
+                                <h4>📁 文件信息</h4>
+                                <p><strong>文件名:</strong> \${result.file.name}</p>
+                                <p><strong>大小:</strong> \${formatFileSize(result.file.size)}</p>
+                                <p><strong>类型:</strong> \${result.file.type}</p>
+                                <p><strong>上传时间:</strong> \${new Date(result.file.uploadTime).toLocaleString()}</p>
+                                <p><strong>Telegram链接:</strong> <a href="\${result.file.url}" class="telegram-link" target="_blank">查看文件</a></p>
+                            </div>
+                        \`;
+                        status.innerHTML += fileInfo;
+                        resolve();
+                    } else {
+                        showStatus('上传失败: ' + result.error, 'error');
+                        reject();
+                    }
+                } else {
+                    showStatus('上传失败: 网络错误', 'error');
+                    reject();
+                }
+            };
+            xhr.onerror = function() {
+                showStatus('上传失败: 网络错误', 'error');
+                reject();
+            };
+            xhr.onloadend = function() {
+                uploadBtn.disabled = false;
+                setTimeout(() => {
+                    progress.style.display = 'none';
+                }, 2000);
+            };
+            xhr.send(formData);
         });
-
-        const result = await response.json();
-
-        if (result.success) {
-            progressBar.style.width = '100%';
-            showStatus('上传成功！文件已发送到Telegram频道', 'success');
-            
-            // 显示文件信息
-            const fileInfo = \`
-                <div class="file-info">
-                    <h4>📁 文件信息</h4>
-                    <p><strong>文件名:</strong> \${result.file.name}</p>
-                    <p><strong>大小:</strong> \${formatFileSize(result.file.size)}</p>
-                    <p><strong>类型:</strong> \${result.file.type}</p>
-                    <p><strong>上传时间:</strong> \${new Date(result.file.uploadTime).toLocaleString()}</p>
-                    <p><strong>Telegram链接:</strong> <a href="\${result.file.url}" class="telegram-link" target="_blank">查看文件</a></p>
-                </div>
-            \`;
-            status.innerHTML += fileInfo;
-        } else {
-            showStatus('上传失败: ' + result.error, 'error');
-        }
     } catch (error) {
         console.error('Upload error:', error);
         showStatus('上传失败: 网络错误', 'error');
-    } finally {
         uploadBtn.disabled = false;
         setTimeout(() => {
             progress.style.display = 'none';

@@ -272,7 +272,7 @@ wrangler pages tail telegram-cloud-drive
 
 ## 许可证
 
-MIT License
+本项目基于 MIT 协议开源，详见 LICENSE 文件。
 
 ## 贡献
 
