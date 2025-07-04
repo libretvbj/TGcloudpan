@@ -417,13 +417,13 @@ async function fetchFiles(user, pass) {
     const tr = document.createElement('tr');
     let preview = '';
     if (f.type && f.type.startsWith('image/')) {
-      preview = '<img src="' + f.url + '" alt="图片预览" style="max-width:80px;max-height:60px;">';
+      preview = '<img src="/api/proxy?url=' + encodeURIComponent(f.url) + '" alt="图片预览" style="max-width:80px;max-height:60px;">';
     } else if (f.type && f.type.startsWith('video/')) {
-      preview = '<video src="' + f.url + '" controls style="max-width:80px;max-height:60px;"></video>';
+      preview = '<video src="/api/proxy?url=' + encodeURIComponent(f.url) + '" controls style="max-width:80px;max-height:60px;"></video>';
     } else {
-      preview = '<a href="' + f.url + '" target="_blank">预览/下载</a>';
+      preview = '<a href="/api/proxy?url=' + encodeURIComponent(f.url) + '" target="_blank">预览/下载</a>';
     }
-    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="' + f.url + '" target="_blank" title="如下载失败请右键新标签页打开">下载</a></td>';
+    tr.innerHTML = '<td>' + f.name + '</td><td>' + formatFileSize(f.size) + '</td><td>' + f.type + '</td><td>' + new Date(f.uploadTime).toLocaleString() + '</td><td>' + preview + '</td><td><a href="/api/proxy?url=' + encodeURIComponent(f.url) + '" target="_blank" title="如下载失败请右键新标签页打开">下载</a></td>';
     fileTable.appendChild(tr);
   }
   setStatus('加载完成', 'success');
